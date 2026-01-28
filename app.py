@@ -15,7 +15,7 @@ st.title("📹 CCTV Product Review Analysis Dashboard")
 def load_data():
     # MAKE SURE THIS MATCHES YOUR FILENAME EXACTLY
     # If your file is named "final_dataframe.xlsx", rename it to "reviews.csv" and update this line.
-    file_path = 'final_dataframe.xlsx - Sheet1.csv' 
+    file_path = 'final_dataframe.xlsx' 
     
     try:
         df = pd.read_csv(file_path)
