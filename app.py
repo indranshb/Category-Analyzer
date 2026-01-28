@@ -13,27 +13,25 @@ st.title("📹 CCTV Product Review Analysis Dashboard")
 # --- 1. Data Loading & Cleaning ---
 @st.cache_data
 def load_data():
-    # MAKE SURE THIS MATCHES YOUR FILENAME EXACTLY
-    # If your file is named "final_dataframe.xlsx", rename it to "reviews.csv" and update this line.
-    file_path = 'final_dataframe.xlsx' 
-    
-    try:
-        df = pd.read_csv(file_path)
-    except FileNotFoundError:
-        # Fallback: try reading it as an Excel file if the user converted it
-        try:
-            df = pd.read_excel('final_dataframe.xlsx')
-        except:
-            st.error(f"File not found! Please ensure your data file is named '{file_path}' and is in the same folder.")
-            return pd.DataFrame()
+    file_path = 'final_dataframe.xlsx'
 
-    # Clean Rating
+    try:
+        # Only change: read Excel directly instead of CSV
+        df = pd.read_excel(file_path)
+    except FileNotFoundError:
+        st.error(f"File not found! Please ensure your data file is named '{file_path}' and is in the same folder.")
+        return pd.DataFrame()
+    except Exception as e:
+        st.error(f"Error loading Excel file: {e}")
+        return pd.DataFrame()
+
+    # --- Clean Rating ---
     df['Rating_Num'] = df['Rating'].astype(str).apply(lambda x: float(x.split()[0]) if 'out of' in x else None)
     
-    # Clean Date
+    # --- Clean Date ---
     df['Date_Clean'] = pd.to_datetime(df['Date'].str.extract(r'on (.*)')[0], errors='coerce')
     
-    # Clean Helpful
+    # --- Clean Helpful ---
     def parse_helpful(x):
         if pd.isna(x): return 0
         if 'One' in str(x): return 1
@@ -41,14 +39,14 @@ def load_data():
         return int(num[0]) if num else 0
     df['Helpful_Num'] = df['Helpful'].apply(parse_helpful)
     
-    # Verified Status
+    # --- Verified Status ---
     df['Is_Verified'] = df['Verified'] == 'Yes'
     
-    # Text & Sentiment
+    # --- Text & Sentiment ---
     df['Full_Text'] = df['Title'].fillna('') + ' ' + df['Text'].fillna('')
     df['Sentiment_Score'] = df['Full_Text'].apply(lambda x: TextBlob(str(x)).sentiment.polarity)
     
-    # Sentiment Label
+    # --- Sentiment Label ---
     def get_sentiment_label(score):
         if score > 0.1: return 'Positive'
         elif score < -0.1: return 'Negative'
