@@ -4,3 +4,4 @@ plotly
 textblob
 wordcloud
 matplotlib
+openpyxl
